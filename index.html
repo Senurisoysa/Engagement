@@ -15,6 +15,27 @@ body{font-family:'Cormorant Garamond',serif;background:#fff5f5;overflow-x:hidden
   --cream:#fff8f2;--blush:#fceef2;--text:#2d0a14;--tmid:#6b2035;--tsoft:#a05068;
 }
 
+/* ── MUSIC TOGGLE ── */
+#musicToggle{
+  position:fixed;top:20px;right:20px;z-index:300;
+  width:46px;height:46px;border-radius:50%;
+  background:rgba(255,248,242,.92);
+  border:1px solid rgba(201,148,58,.4);
+  box-shadow:0 4px 16px rgba(192,36,74,.18);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:transform .25s ease,box-shadow .25s ease;
+}
+#musicToggle:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(192,36,74,.26);}
+#musicToggle svg{width:20px;height:20px;}
+#musicToggle .bar{fill:var(--rose);}
+#musicToggle.playing .bar{animation:musicBar 1s ease-in-out infinite;}
+#musicToggle .bar:nth-child(2){animation-delay:.15s;}
+#musicToggle .bar:nth-child(3){animation-delay:.3s;}
+@keyframes musicBar{0%,100%{transform:scaleY(.4);}50%{transform:scaleY(1);}}
+#musicToggle .muted-icon{display:none;}
+#musicToggle.muted .playing-icon{display:none;}
+#musicToggle.muted .muted-icon{display:block;}
+
 /* ── PETALS ── */
 .petals-canvas{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden;}
 .petal{position:absolute;top:-30px;opacity:0;animation:petalFall linear infinite;}
@@ -296,6 +317,15 @@ body{font-family:'Cormorant Garamond',serif;background:#fff5f5;overflow-x:hidden
 </head>
 <body>
 <div class="petals-canvas" id="petalCanvas"></div>
+
+<!-- BACKGROUND MUSIC -->
+<audio id="bgMusic" loop preload="none">
+  <source src="YOUR-MUSIC-FILE-URL-HERE.mp3" type="audio/mpeg">
+</audio>
+<div id="musicToggle" onclick="toggleMusic()" title="Toggle music">
+  <svg class="playing-icon" viewBox="0 0 20 20"><rect class="bar" x="3" y="7" width="3" height="6" rx="1"/><rect class="bar" x="8.5" y="4" width="3" height="12" rx="1"/><rect class="bar" x="14" y="8" width="3" height="4" rx="1"/></svg>
+  <svg class="muted-icon" viewBox="0 0 24 24" fill="none" stroke="#c0244a" stroke-width="1.6"><path d="M9 8H5v8h4l5 4V4l-5 4Z" fill="#c0244a" stroke="none"/><line x1="16" y1="9" x2="21" y2="15"/><line x1="21" y1="9" x2="16" y2="15"/></svg>
+</div>
 
 <!-- ═══════════════════ INTRO ═══════════════════ -->
 <section id="intro" onclick="startInvitation()">
@@ -1016,6 +1046,34 @@ function startInvitation(){
   startCountdown();
   setupObserver();
   setTimeout(()=>{document.querySelectorAll('#cover .fade-up').forEach(el=>el.classList.add('visible'));},80);
+  playMusic();
+}
+
+// ── MUSIC ──
+function playMusic(){
+  const music=document.getElementById('bgMusic');
+  const toggle=document.getElementById('musicToggle');
+  music.volume=0.35;
+  music.play().then(()=>{
+    toggle.classList.add('playing');
+    toggle.classList.remove('muted');
+  }).catch(()=>{
+    toggle.classList.add('muted');
+  });
+}
+function toggleMusic(){
+  const music=document.getElementById('bgMusic');
+  const toggle=document.getElementById('musicToggle');
+  if(music.paused){
+    music.play().then(()=>{
+      toggle.classList.add('playing');
+      toggle.classList.remove('muted');
+    });
+  }else{
+    music.pause();
+    toggle.classList.remove('playing');
+    toggle.classList.add('muted');
+  }
 }
 
 // ── COUNTDOWN ──
